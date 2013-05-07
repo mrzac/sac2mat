@@ -2,13 +2,15 @@
 % Quadstar 32 bits - version 7.03 is very very limited. 
 % Export data from .sac files to .csv files of each cycle is posible.
 % But, you have to save it for every single measurements cycle.
-% This short program allow 
+% This short program allow to:
+% * plot spectra 
+% * export spectra to XSL file
+% * ...
 
-% This code is developped from the c code found here: http://www.bubek.org/physics/sac2dat.php?lang=en
-% Thanks to Dr. Moritz Bubek, no more time to export more than 100
-% cycles...
+% This code is developped from the C code source found here: http://www.bubek.org/physics/sac2dat.php?lang=en
+% Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
-% _Version du 03/05/2013_
+% _Version du 06/05/2013_
 % _Zaccaria SILVESTRI_
 %
 
@@ -24,7 +26,7 @@ clc
 % fid = fopen(fnameA) ;
 
 % Or directely in the code
- fid = fopen('250413.sac');
+ fid = fopen('data_sample.sac');
  
 [filename, permission, machineformat, encoding] = fopen(fid) ;
 
@@ -166,17 +168,17 @@ fclose(fid);
 % Ligne 99 + Nbcycles * Nbpoints : Tous les 1ers points 
 
 
-%% Tracé des spectres
-% Tracé 1D
+%% Spectra Plot
+% 2D plot : I = f(u) for all cycle
 figure(1)
 plot(u, data_cycle) ;
-xlabel('u') ;
-ylabel('SEM Intensity (A)') ;
+xlabel('Mass (u)') ;
+ylabel('Intensity (A)') ;
+title('I = f(u)')
 
-% Tracé 2D
+% 3D plot : 
 % figure(2)
-% scatter3(u, time_cycle, data_cycle)
-
+plot3(u, time_cycle', data_cycle(:,1)) ;
 
 %% Spectra Export to XSL file 
 % 
