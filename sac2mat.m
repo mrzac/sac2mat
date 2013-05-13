@@ -1,16 +1,18 @@
 %% sac2mat.m
-% Quadstar 32 bits - version 7.03 is very very limited. 
+% Quadstar 32 bits is very limited. 
 % Export data from .sac files to .csv files of each cycle is posible.
 % But, you have to save it for every single measurements cycle.
-% This short program allow to:
-% * plot spectra 
+% This short program allows to:
+% * import data from .sac files
+% * plot mass spectra 
 % * export spectra to XSL file
-% * ...
+% * 
 
 % This code is developped from the C code source found here: http://www.bubek.org/physics/sac2dat.php?lang=en
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
-% _Version du 06/05/2013_
+% Matlab code for developped for QuadStar 32 bits - version 7.03 
+% _Version Code: 05/13/2013_
 % _Zaccaria SILVESTRI_
 %
 
@@ -20,14 +22,15 @@ clear all
 clc
 
 %% Interactive choice of the .sac file to import.
-%[fnameA,pnameA] = uigetfile('D:\*.sac', 'Selectionner le fichier *.sac à importer');
+% [fname, pname] = uigetfile('D:\*.sac', 'Select *.sac file to import in Matlab');
 
-% Open the sac file
-% fid = fopen(fnameA) ;
+% Open the *.sac file
+% fid = fopen(fname) ;
 
 % Or directely in the code
- fid = fopen('data_sample.sac');
+fid = fopen('data_sample.sac');
  
+% Get information about *sac file
 [filename, permission, machineformat, encoding] = fopen(fid) ;
 
 %% Parameters to search in the sac file
@@ -36,6 +39,7 @@ clc
 % Number of cycles 
 fseek(fid, 100, 'bof') ;
 NbCycle = double(fread(fid, 1, '*uint16')) ;
+Cycle_list = 1 : NbCycle ;
 
 % Scan Width
 fseek(fid, 345, 'bof') ;
@@ -77,15 +81,14 @@ UTC = fread(fid, 1, 'ulong') ;
 % date format (ex. 26-Feb-2013 09:49:25)).
 Start_time = datestr(datenum([1970, 1, 1, 0, 0, UTC])) ;
 
-%% Real number of data point for each cycle
+%% "Real" number of data point for each cycle
 Cal_NbPts = (u_end - u_start) * Nbmass ;
 
-%% Construction of the 
+%% Construction of the uma 
+
+u = zeros(NbPts + 33, 1) ;
+
 u(1) = u_start ;
-
-%u = zeros(NbPts + 33);
-% Faire préallocation de mémoire
-
 for i =  2 : (NbPts + 33) ;
     
     u(i,1) = u(i-1,1) + (1 / Nbmass) ;
@@ -100,8 +103,7 @@ time_cycle_all = fread(fid, 'ulong') ;
 taille = size(time_cycle_all, 1) ;
 
 j = 0 ;
-
-% Faire pré-allocation de mémoire
+time_cycle = zeros(1, NbCycle) ;
 
 for i = 96 : (Cal_NbPts + 3) : taille
     
@@ -109,8 +111,6 @@ for i = 96 : (Cal_NbPts + 3) : taille
    time_cycle(j) = time_cycle_all(i) ; 
    
 end
-
-time_cycle = time_cycle ;
 
 % Les points de chaque cycle
 
@@ -121,10 +121,10 @@ data_cycle_all = fread(fid, '*float') ;
 dec = 96 ;
 l = 0 ;
 
-% Faire préallocation de mémoire
+data_cycle = zeros(NbPts + 33, NbCycle) ; 
 
 for k = 1 : 1 : NbCycle
-    for i = 1 : 1 : (Cal_NbPts)
+    for i = 1 : (Cal_NbPts)
     
         data_cycle(i,k) = data_cycle_all(dec + i + 2 + l) ;
     
@@ -176,41 +176,96 @@ xlabel('Mass (u)') ;
 ylabel('Intensity (A)') ;
 title('I = f(u)')
 
-% 3D plot : 
-% figure(2)
-plot3(u, time_cycle', data_cycle(:,1)) ;
+% 3D plot : I = f(u) vs time cycle
 
-%% Spectra Export to XSL file 
-% 
+X = repmat(u, 1, NbCycle) ;
+Y1 = repmat(time_cycle, size(u,1) , 1) ;
+Y2 = repmat(Cycle_list, size(u,1) , 1) ;
+
+figure(2)
+plot3(X, Y1, data_cycle) ;
+xlabel('Mass (u)') ;
+ylabel('Time cycle (s)');
+zlabel('Intensity (A)') ;
+title('I = f(u) vs Time Cycle')
+
+figure(3)
+plot3(X, Y2, data_cycle) ;
+xlabel('Mass (u)') ;
+ylabel('Cycle');
+zlabel('Intensity (A)') ;
+title('I = f(u) vs Cycle')
+
+
+%% Mass Spectra Export
+% XLS File
+% DAT File
+% MAT File
+% NO Export
 
 cut_filename = strsplit(filename,'\\') ;
 S = size(cut_filename,2) ;
 % filename2 = strsplit(cut_filename{1, S}, '.sac') ;
 filename3 = strsplit(filename, '.sac') ;
 
-Header1 = {'XSL Export', cut_filename{1, S} ; 'Date & Time', Start_time ; 'Nb Cycles', NbCycle};
-sheet = 1 ;
-xlRange1 = 'A1' ;
-xlswrite(filename3{1,1}, Header1, sheet, xlRange1)
+menu_export = menu('Export Data?',' - XLS File','- DAT File', '- MAT File', '- NO Export') ;
 
-Header2 = {'First mass', First_u ; 'Scan Width', Scan_Width ; 'Value/Mass', Nbmass ; 'u Start' , u_start ; 'u end' , u_end};
-xlRange2 = 'A5' ;
-xlswrite(filename3{1,1}, Header2, sheet, xlRange2)
+switch 1
+    case (menu_export == 1)
 
-Cycle_list = 1 : NbCycle ;
+        
+    %% Mass Spectra Export to XSL file 
+    
+    Header1 = {'XSL Export', cut_filename{1, S} ; 'Date & Time', Start_time ; 'Nb Cycles', NbCycle};
+    sheet = 1 ;
+    xlRange1 = 'A1' ;
+    xlswrite(filename3{1,1}, Header1, sheet, xlRange1)
 
-Header3 = [Cycle_list ; time_cycle] ;
-xlRange3 = 'B11' ;
-xlswrite(filename3{1,1}, Header3, sheet, xlRange3)
+    Header2 = {'First mass', First_u ; 'Scan Width', Scan_Width ; 'Value/Mass', Nbmass ; 'u Start' , u_start ; 'u end' , u_end};
+    xlRange2 = 'A5' ;
+    xlswrite(filename3{1,1}, Header2, sheet, xlRange2)
 
-Header4 = [u , data_cycle] ;
-xlRange4 = 'A13' ;
-xlswrite(filename3{1,1}, Header4, sheet, xlRange4)
+        Header3 = [Cycle_list ; time_cycle] ;
+    xlRange3 = 'B11' ;
+    xlswrite(filename3{1,1}, Header3, sheet, xlRange3)
 
-Header5 =  {'Ion current', Units_I ; 'Mass Unit' , Units_u};
-xlRange5 = 'E5' ;
-xlswrite(filename3{1,1}, Header5, sheet, xlRange5)
+    Header4 = [u , data_cycle] ;
+    xlRange4 = 'A13' ;
+    xlswrite(filename3{1,1}, Header4, sheet, xlRange4)
 
+    Header5 =  {'Ion current', Units_I ; 'Mass Unit' , Units_u};
+    xlRange5 = 'E5' ;
+    xlswrite(filename3{1,1}, Header5, sheet, xlRange5)
+
+    case (menu_export == 2)
+        
+    %% Mass Spectra Export to DAT / TXT file 
+
+    filename_dat = [filename3{1,1} '.dat'] ;
+   
+    % to do with fprintf
+    % Example...
+    
+    % x = 0:0.1:1;
+    % y = [x; exp(x)];
+    %     
+    % fid = fopen('exptable_new.txt', 'w');
+    % fprintf(fid, 'Exponential Function\n\n');
+    % fprintf(fid, '%6.2f  %12.8f\n', y);
+    % fclose(fid);
+    
+    case (menu_export == 3)
+        
+    %% Mass Spectra Export to MAT file 
+    % Save all
+    filename_mat = [filename3{1,1} '.mat'] ;
+    save(filename_mat, 'NbCycle', 'Scan_Width', 'Nbmass', 'NbPts', 'First_u', 'u_start', 'u_end', 'Units_I', 'Units_u', 'UTC', 'Start_time', 'Cal_NbPts', 'u', 'time_cycle', 'data_cycle')
+    
+    
+    otherwise
+        disp('Data NOT Exported')
+        % warndlg('Data NOT Exported')
+end
 
 
 
