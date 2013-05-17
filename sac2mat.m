@@ -11,7 +11,7 @@
 % This code is developped from the C code source found here: http://www.bubek.org/physics/sac2dat.php?lang=en
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
-% Matlab code for developped for QuadStar 32 bits - version 7.03 
+% Matlab code for developped for QuadStar 32 bits V.7.03 
 % _Version Code: 05/13/2013_
 % _Zaccaria SILVESTRI_
 %
@@ -221,11 +221,11 @@ switch 1
     xlRange1 = 'A1' ;
     xlswrite(filename3{1,1}, Header1, sheet, xlRange1)
 
-    Header2 = {'First mass', First_u ; 'Scan Width', Scan_Width ; 'Value/Mass', Nbmass ; 'u Start' , u_start ; 'u end' , u_end};
+    Header2 = {'First mass', First_u ; 'Scan Width', Scan_Width ; 'Value/Mass', Nbmass ; 'u Start' , u_start ; 'u End' , u_end};
     xlRange2 = 'A5' ;
     xlswrite(filename3{1,1}, Header2, sheet, xlRange2)
 
-        Header3 = [Cycle_list ; time_cycle] ;
+    Header3 = [Cycle_list ; time_cycle] ;
     xlRange3 = 'B11' ;
     xlswrite(filename3{1,1}, Header3, sheet, xlRange3)
 
@@ -242,9 +242,25 @@ switch 1
     %% Mass Spectra Export to DAT / TXT file 
 
     filename_dat = [filename3{1,1} '.dat'] ;
-   
-    % to do with fprintf
-    % Example...
+    fid2 = fopen(filename_dat, 'w');
+    
+    fprintf(fid2, 'DAT Export \t %s \r', cut_filename{1, S}) ;
+    fprintf(fid2, '\n Date & Time \t %s \r', Start_time) ;
+    fprintf(fid2, '\n Nb Cycles \t %d \r', NbCycle) ;
+    
+    fprintf(fid2, '\n First mass \t %d \r', First_u) ;
+    fprintf(fid2, '\n Scan Width \t %d \r', Scan_Width) ;
+    fprintf(fid2, '\n Value/Mass \t %d \r', Nbmass) ;
+    fprintf(fid2, '\n u Start \t %d \r', u_start) ;
+    fprintf(fid2, '\n u End \t %d \r', u_end) ;
+    
+    fprintf(fid2, '\n \t %d ', Cycle_list) ;
+    fprintf(fid2, '\t %d \r', time_cycle) ;
+    
+    Header4 = [u , data_cycle] ;
+    fprintf(fid2, '\n \t %f \r', Header4) ;
+        
+    fclose(fid2);
     
     % x = 0:0.1:1;
     % y = [x; exp(x)];
@@ -252,7 +268,7 @@ switch 1
     % fid = fopen('exptable_new.txt', 'w');
     % fprintf(fid, 'Exponential Function\n\n');
     % fprintf(fid, '%6.2f  %12.8f\n', y);
-    % fclose(fid);
+    
     
     case (menu_export == 3)
         
