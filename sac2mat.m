@@ -12,7 +12,7 @@
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
 % Matlab code for developped for QuadStar 32 bits V.7.03 
-% _Version Code: 05/13/2013_
+% _Version Code: 05/27/2013_
 % _Zaccaria SILVESTRI_
 %
 
@@ -47,7 +47,7 @@ Scan_Width = double(fread(fid, 1, '*uint16')) ;
 
 % Number of measurements for each mass 
 fseek(fid, 347, 'bof') ;
-Nbmass = double(fread(fid, 1, '*uint16')) ;
+Steps = double(fread(fid, 1, '*uint16')) ;
 
 % Number of data points for each cycle 
 fseek(fid, 386, 'bof') ;
@@ -82,16 +82,16 @@ UTC = fread(fid, 1, 'ulong') ;
 Start_time = datestr(datenum([1970, 1, 1, 0, 0, UTC])) ;
 
 %% "Real" number of data point for each cycle
-Cal_NbPts = (u_end - u_start) * Nbmass ;
+Cal_NbPts = Scan_Width * Steps ;
 
 %% Construction of the uma 
 
 u = zeros(NbPts + 33, 1) ;
 
-u(1) = u_start ;
+u(1) = First_u ;
 for i =  2 : (NbPts + 33) ;
     
-    u(i,1) = u(i-1,1) + (1 / Nbmass) ;
+    u(i,1) = u(i-1,1) + (1 / Steps) ;
 
 end
 
@@ -140,7 +140,7 @@ fclose(fid);
 % *uint16
 % Ligne 100 et 121 : Nbres de cycles --> NbCycle  
 % Ligne 107 ou 345 : Scan Width (Dernier u - 1ère u) --> Scan_Width (128)
-% Ligne 347 : Nbre de points mesurés par mass --> Nbmass (64)
+% Ligne 347 : Nbre de points mesurés par mass --> Steps (64)
 % Ligne 386 : Nbre de points d'un cycle --> NbPoints (8159)
 
 % *float
@@ -221,7 +221,7 @@ switch 1
     xlRange1 = 'A1' ;
     xlswrite(filename3{1,1}, Header1, sheet, xlRange1)
 
-    Header2 = {'First mass', First_u ; 'Scan Width', Scan_Width ; 'Value/Mass', Nbmass ; 'u Start' , u_start ; 'u End' , u_end};
+    Header2 = {'First mass', First_u ; 'Scan Width', Scan_Width ; 'Value/Mass', Steps ; 'u Start' , u_start ; 'u End' , u_end};
     xlRange2 = 'A5' ;
     xlswrite(filename3{1,1}, Header2, sheet, xlRange2)
 
@@ -250,7 +250,7 @@ switch 1
     
     fprintf(fid2, '\n First mass \t %d \r', First_u) ;
     fprintf(fid2, '\n Scan Width \t %d \r', Scan_Width) ;
-    fprintf(fid2, '\n Value/Mass \t %d \r', Nbmass) ;
+    fprintf(fid2, '\n Value/Mass \t %d \r', Steps) ;
     fprintf(fid2, '\n u Start \t %d \r', u_start) ;
     fprintf(fid2, '\n u End \t %d \r', u_end) ;
     
@@ -261,21 +261,14 @@ switch 1
     fprintf(fid2, '\n \t %f \r', Header4) ;
         
     fclose(fid2);
-    
-    % x = 0:0.1:1;
-    % y = [x; exp(x)];
-    %     
-    % fid = fopen('exptable_new.txt', 'w');
-    % fprintf(fid, 'Exponential Function\n\n');
-    % fprintf(fid, '%6.2f  %12.8f\n', y);
-    
+   
     
     case (menu_export == 3)
         
     %% Mass Spectra Export to MAT file 
     % Save all
     filename_mat = [filename3{1,1} '.mat'] ;
-    save(filename_mat, 'NbCycle', 'Scan_Width', 'Nbmass', 'NbPts', 'First_u', 'u_start', 'u_end', 'Units_I', 'Units_u', 'UTC', 'Start_time', 'Cal_NbPts', 'u', 'time_cycle', 'data_cycle')
+    save(filename_mat, 'NbCycle', 'Scan_Width', 'Steps', 'NbPts', 'First_u', 'u_start', 'u_end', 'Units_I', 'Units_u', 'UTC', 'Start_time', 'Cal_NbPts', 'u', 'time_cycle', 'data_cycle')
     
     
     otherwise
