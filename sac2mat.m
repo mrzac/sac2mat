@@ -12,13 +12,13 @@
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
 % Matlab code for developped for QuadStar 32 bits V.7.03 
-% _Version Code: 05/27/2013_
+% _Version Code: 05/27/2013_REV_05/22/2016
 % _Zaccaria SILVESTRI_
 %
 
 %% Workspace Initialisation
 close all
-clear all
+clear all %#ok<*CLALL>
 clc
 
 %% Interactive choice of the .sac file to import.
@@ -89,7 +89,7 @@ Cal_NbPts = Scan_Width * Steps ;
 u = zeros(NbPts + 33, 1) ;
 
 u(1) = First_u ;
-for i =  2 : (NbPts + 33) ;
+for i =  2 : (NbPts + 33) 
     
     u(i,1) = u(i-1,1) + (1 / Steps) ;
 
@@ -167,7 +167,6 @@ fclose(fid);
 % Ligne 99 : premier points du cycle 1
 % Ligne 99 + Nbcycles * Nbpoints : Tous les 1ers points 
 
-
 %% Spectra Plot
 % 2D plot : I = f(u) for all cycle
 figure(1)
@@ -211,9 +210,7 @@ filename3 = strsplit(filename, '.sac') ;
 menu_export = menu('Export Data?',' - XLS File','- DAT File', '- MAT File', '- NO Export') ;
 
 switch 1
-    case (menu_export == 1)
-
-        
+    case (menu_export == 1)     
     %% Mass Spectra Export to XSL file 
     
     Header1 = {'XSL Export', cut_filename{1, S} ; 'Date & Time', Start_time ; 'Nb Cycles', NbCycle};
@@ -269,7 +266,6 @@ switch 1
     % Save all
     filename_mat = [filename3{1,1} '.mat'] ;
     save(filename_mat, 'NbCycle', 'Scan_Width', 'Steps', 'NbPts', 'First_u', 'u_start', 'u_end', 'Units_I', 'Units_u', 'UTC', 'Start_time', 'Cal_NbPts', 'u', 'time_cycle', 'data_cycle')
-    
     
     otherwise
         disp('Data NOT Exported')
