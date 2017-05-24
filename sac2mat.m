@@ -12,7 +12,7 @@
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
 % Matlab code for developped for QuadStar 32 bits V.7.03 
-% _Version Code: 05/27/2013_REV_05/22/2016
+% _Version Code: 05/27/2013_REV_05/22/2017
 % _Zaccaria SILVESTRI_
 %
 
