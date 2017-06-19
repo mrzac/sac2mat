@@ -3,10 +3,12 @@
 % Export data from .sac files to .csv files of each cycle is posible.
 % But, you have to save it for every single measurements cycle.
 % This short program allows to:
-% * import data from .sac files
-% * plot mass spectra 
-% * export spectra to XSL file
-% * 
+% * import data from SAC files;
+% * plot of 2D and 3D mass spectra: 
+%   * 2D plot : I = f(u) for all cycles;
+%   * 3D plot : I = f(u) vs time cycle;
+%   * 3D plot : I = f(u) vs cycle.
+% * export spectra to XSL, DAT or MAT files.
 
 % This code is developped from the C code source found here: http://www.bubek.org/physics/sac2dat.php?lang=en
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
@@ -16,12 +18,44 @@
 % _Zaccaria SILVESTRI_
 %
 
+%% Informations about data formats in the file. 
+
+% *uint16
+% Line 100 and 121 : Number of cycles --> NbCycle  
+% Line 107 or 345 : Scan Width (Last u - First u) --> Scan_Width (128)
+% Line 347 : Number of measured data per mass --> Steps (64)
+% Line 386 : Number of data for ine cycle --> NbPoints (8159)
+
+% *float
+% Line 341 : First mass --> First_u (0.5)
+% Line 348 : Zoom Start --> u_start (0.5)
+% Line 352 : Zomm End --> u_end (0.5)
+
+% *char
+% Line (221:234) : Ion Current A --> Unity (A)
+% Line (248:252) : Mass 
+% Line (261:263) : amu
+
+% *ulong
+% Line 194 : UTC time sec --> UTCs
+
+% A = fread(fid1, [10, 10], 'single');
+% fseek(fid1, 100, 'bof');
+% data190 = fread(fid, 100000, x) ;
+
+% *ulong
+% Line 96 : Time 0 of spectra acquisition
+% Line 96 + Nbcycles * Nbpoints : All times acquisition
+
+% Line 99 : First data of cycle 1
+% Line 99 + Nbcycles * Nbpoints : All first data
+
 %% Workspace Initialisation
 close all
 clear all %#ok<*CLALL>
 clc
 
-%% Interactive choice of the .sac file to import.
+%% Interactive choice of the SAC file to import.
 % [fname, pname] = uigetfile('D:\*.sac', 'Select *.sac file to import in Matlab');
 
 % Open the *.sac file
@@ -85,18 +119,15 @@ Start_time = datestr(datenum([1970, 1, 1, 0, 0, UTC])) ;
 Cal_NbPts = Scan_Width * Steps ;
 
 %% Construction of the uma 
-
 u = zeros(NbPts + 33, 1) ;
 
 u(1) = First_u ;
 for i =  2 : (NbPts + 33) 
-    
-    u(i,1) = u(i-1,1) + (1 / Steps) ;
-
+   u(i,1) = u(i-1,1) + (1 / Steps) ;
 end
 
-%% Création de la matrice des cycles 
-% Le temps de chaque cycle
+%% Creation of the matrix of cycles 
+% Time of each cycle
 fseek(fid, 0, 'bof') ;
 
 time_cycle_all = fread(fid, 'ulong') ;
@@ -105,19 +136,16 @@ taille = size(time_cycle_all, 1) ;
 j = 0 ;
 time_cycle = zeros(1, NbCycle) ;
 
-for i = 96 : (Cal_NbPts + 3) : taille
-    
+for i = 96 : (Cal_NbPts + 3) : taille 
    j = j + 1 ;
-   time_cycle(j) = time_cycle_all(i) ; 
-   
+   time_cycle(j) = time_cycle_all(i) ;
 end
 
-% Les points de chaque cycle
-
+% Data for each cycle
 fseek(fid, 0, 'bof') ;
 data_cycle_all = fread(fid, '*float') ;
 
-% Décalage pour atteindre l'en-tête du 1er cycle
+% Offset to reach the heading of first cycle
 dec = 96 ;
 l = 0 ;
 
@@ -125,47 +153,12 @@ data_cycle = zeros(NbPts + 33, NbCycle) ;
 
 for k = 1 : 1 : NbCycle
     for i = 1 : (Cal_NbPts)
-    
         data_cycle(i,k) = data_cycle_all(dec + i + 2 + l) ;
-    
     end
-    % 
     l = l + 3 + Cal_NbPts ;
 end
 
 fclose(fid);
-
-%% Infos sur les formats de données présents dans le fichier. 
-
-% *uint16
-% Ligne 100 et 121 : Nbres de cycles --> NbCycle  
-% Ligne 107 ou 345 : Scan Width (Dernier u - 1ère u) --> Scan_Width (128)
-% Ligne 347 : Nbre de points mesurés par mass --> Steps (64)
-% Ligne 386 : Nbre de points d'un cycle --> NbPoints (8159)
-
-% *float
-% Ligne 341 : First mass --> First_u (0.5)
-% Ligne 348 : Zoom Start --> u_start (0.5)
-% Ligne 352 : Zomm End --> u_end (0.5)
-
-% *char
-% Ligne (221:234) : Ion Current A --> Unité (A)
-% Ligne (248:252) : Mass 
-% Ligne (261:263) : amu
-
-% *ulong
-% Ligne 194 : UTC time sec --> UTCs
-
-% A = fread(fid1, [10, 10], 'single');
-% fseek(fid1, 100, 'bof');
-% data190 = fread(fid, 100000, x) ;
-
-% *ulong
-% Ligne 96 : temps 0 de l'acquisition du spectre
-% Ligne 96 + Nbcycles * Nbpoints : Tous les temps d'acquisition
-
-% Ligne 99 : premier points du cycle 1
-% Ligne 99 + Nbcycles * Nbpoints : Tous les 1ers points 
 
 %% Spectra Plot
 % 2D plot : I = f(u) for all cycle
@@ -176,7 +169,6 @@ ylabel('Intensity (A)') ;
 title('I = f(u)')
 
 % 3D plot : I = f(u) vs time cycle
-
 X = repmat(u, 1, NbCycle) ;
 Y1 = repmat(time_cycle, size(u,1) , 1) ;
 Y2 = repmat(Cycle_list, size(u,1) , 1) ;
@@ -195,7 +187,6 @@ ylabel('Cycle');
 zlabel('Intensity (A)') ;
 title('I = f(u) vs Cycle')
 
-
 %% Mass Spectra Export
 % XLS File
 % DAT File
@@ -212,7 +203,6 @@ menu_export = menu('Export Data?',' - XLS File','- DAT File', '- MAT File', '- N
 switch 1
     case (menu_export == 1)     
     %% Mass Spectra Export to XSL file 
-    
     Header1 = {'XSL Export', cut_filename{1, S} ; 'Date & Time', Start_time ; 'Nb Cycles', NbCycle};
     sheet = 1 ;
     xlRange1 = 'A1' ;
@@ -237,7 +227,6 @@ switch 1
     case (menu_export == 2)
         
     %% Mass Spectra Export to DAT / TXT file 
-
     filename_dat = [filename3{1,1} '.dat'] ;
     fid2 = fopen(filename_dat, 'w');
     
@@ -259,7 +248,6 @@ switch 1
         
     fclose(fid2);
    
-    
     case (menu_export == 3)
         
     %% Mass Spectra Export to MAT file 
@@ -271,6 +259,3 @@ switch 1
         disp('Data NOT Exported')
         % warndlg('Data NOT Exported')
 end
-
-
-
