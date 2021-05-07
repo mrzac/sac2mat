@@ -10,7 +10,7 @@ Thanks to him, no more time to export more than 100 cycles...
 
 ## What is sac2mat?
 
- sac2mat is a short Matlab program that allows to:
+ **sac2mat** is a short Matlab program that allows to:
 
 * import data from SAC files;
 * plot of 2D and 3D mass spectra :
@@ -20,7 +20,7 @@ Thanks to him, no more time to export more than 100 cycles...
 * export spectra to XSL, DAT or MAT files.
 
 This program has been coded for Quadstar 32 bits - version 7.03.
-Tested on Microsoft Windows 7/8/10 and with Mathworks Matlab R2013+.
+This code has been tested on Microsoft Windows 7/8/10 and with Mathworks Matlab R2013+.
 
 ## How to use sac2mat?
 ### Prerequisites
@@ -31,7 +31,7 @@ Tested on Microsoft Windows 7/8/10 and with Mathworks Matlab R2013+.
 
 ### Program
 
-1. In sac2mat directory, put your SAC file;
+1. In **sac2mat** directory, put your SAC file;
 2. Launch sac2mat.m;
 3. Choose an option to export data;
 4. Et voilà!
