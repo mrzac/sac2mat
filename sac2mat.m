@@ -166,6 +166,8 @@ figure(1)
 plot(u, data_cycle) ;
 xlabel('Mass (u)') ;
 ylabel('Intensity (A)') ;
+grid on
+box on
 title('I = f(u)')
 
 % 3D plot : I = f(u) vs time cycle
@@ -178,6 +180,8 @@ plot3(X, Y1, data_cycle) ;
 xlabel('Mass (u)') ;
 ylabel('Time cycle (s)');
 zlabel('Intensity (A)') ;
+grid on
+box on
 title('I = f(u) vs Time Cycle')
 
 figure(3)
@@ -185,6 +189,8 @@ plot3(X, Y2, data_cycle) ;
 xlabel('Mass (u)') ;
 ylabel('Cycle');
 zlabel('Intensity (A)') ;
+grid on
+box on
 title('I = f(u) vs Cycle')
 
 %% Mass Spectra Export
@@ -203,6 +209,7 @@ menu_export = menu('Export Data?',' - XLS File','- DAT File', '- MAT File', '- N
 switch 1
     case (menu_export == 1)     
     %% Mass Spectra Export to XSL file 
+    % Not recommended starting in R2019a - Use writetable, writematrix, or writecell instead.
     Header1 = {'XSL Export', cut_filename{1, S} ; 'Date & Time', Start_time ; 'Nb Cycles', NbCycle};
     sheet = 1 ;
     xlRange1 = 'A1' ;
