@@ -13,9 +13,9 @@ Thanks to him, no more time to export more than 100 cycles...
  **sac2mat** is a short Matlab program that allows to:
 
 * import data from SAC files;
-* plot of 2D and 3D mass spectra :
-    * 2D plot : I = f(u) for all cycles;
-    * 3D plot : I = f(u) vs time cycle;
+* plot of 2D and 3D mass spectra:
+    * 2D plot : I = f(u) for all cycles
+    * 3D plot : I = f(u) vs time cycle
     * 3D plot : I = f(u) vs cycle.
 * export spectra to XSL, DAT or MAT files.
 
