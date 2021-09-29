@@ -5,7 +5,7 @@
 Quadstar 32 bits software is very very limited for analyze mass spectra from QMS measurements.
 Export data from SAC files to CSV files of each cycle is possible, but you have to save it for every cycle.
 
-This proposed code **sac2mat** is largely based from a [C code](http://www.bubek.org/physics/sac2dat.php?lang=en) developped by Dr. Moritz Bubek in 2012.
+This proposed code **sac2mat** is largely based from a [C code](http://www.bubek.org/sac2dat.php) developped by Dr. Moritz Bubek in 2012.
 Thanks to him, no more time to export more than 100 cycles...
 
 ## What is sac2mat?
@@ -34,7 +34,7 @@ This code has been tested on Microsoft Windows 7/8/10 and with Mathworks Matlab 
 1. In **sac2mat** directory, put your SAC file;
 2. Launch sac2mat.m;
 3. Choose an option to export data;
-4. Et voilà!
+4. Et voilà! Enjoy!
 
 ### Samples
 
