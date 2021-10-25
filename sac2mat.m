@@ -10,7 +10,7 @@
 %   * 3D plot : I = f(u) vs cycle.
 % * export spectra to XSL, DAT or MAT files.
 
-% This code is developped from the C code source found here: http://www.bubek.org/physics/sac2dat.php?lang=en
+% This code is developped from the C code source found here: http://www.bubek.org/sac2dat.php
 % Thanks to Dr. Moritz Bubek, no more time to export manually more than 100 cycles...
 
 % Matlab code for developped for QuadStar 32 bits V.7.03 
